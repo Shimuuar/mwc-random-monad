@@ -9,7 +9,6 @@ import Control.Applicative
 import Control.Monad           (ap)
 import Control.Monad.Primitive (PrimMonad, PrimState)
 
-import qualified Data.Vector.Unboxed as U
 import Data.Word (Word32)
 
 import qualified System.Random.MWC as MWC
@@ -58,9 +57,9 @@ uniform = Rand MWC.uniform
 -- | Uniformly distributed values in range
 uniformR :: (PrimMonad m, Variate a) => Rand m a
 uniformR = Rand MWC.uniform
-{-# INLINE uniform #-}
+{-# INLINE uniformR #-}
 
 -- | Normally distributed variables with mean 0 and 1 statndard deviation
 normal :: (PrimMonad m) => Rand m Double
 normal = Rand MWC.normal
-{-# INLINE uniform #-}
+{-# INLINE normal #-}
