@@ -13,6 +13,7 @@ Cabal-version:       >=1.6
 Library
   build-depends:     base >= 3 && < 5,
                      primitive,
+                     vector >= 0.6.0.2,
                      mwc-random >= 0.8
   Exposed-modules:   System.Random.MWC.Monad
   

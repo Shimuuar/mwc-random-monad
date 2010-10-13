@@ -1,18 +1,29 @@
 module System.Random.MWC.Monad ( -- * Random monad
                                  Rand
+                               , Seed
                                , runRand
-                               , runSystemRandom
-                                 -- * 
+                               , runWithSeed
+                               , runWithVector
+                               , runWithSystemRandom
+                                 -- * Random numbers generation
+                               , toRand
+                               , uniform
+                               , uniformR
+                               , normal
+                                 -- * Seed management
+                               , save
                                ) where
 
 import Control.Applicative
 import Control.Monad           (ap)
+import Control.Monad.ST        (ST)
 import Control.Monad.Primitive (PrimMonad, PrimState)
 
-import Data.Word (Word32)
+import Data.Vector.Unboxed (Vector)
+import Data.Word           (Word32)
 
 import qualified System.Random.MWC as MWC
-import System.Random.MWC (Gen,Variate)
+import           System.Random.MWC   (Gen,Variate,Seed)
 
 ----------------------------------------------------------------
 
@@ -22,9 +33,31 @@ newtype Rand m a = Rand {
   runRand :: Gen (PrimState m) -> m a
   }
 
+-- | Type synonim for ST-based Rand monad
+type RandST s a = Rand (ST s) a
+
+-- | Type synonim for IO-based Rand monad
+type RandIO a   = Rand IO a
+
+-- | Run monad using fixed seed
+runWithCreate :: PrimMonad m => Rand m a -> m a
+runWithCreate m = runRand m =<< MWC.create
+{-# INLINE runWithCreate #-}
+
+-- | By creating seed from vector of values
+runWithVector :: PrimMonad m => Rand m a -> Vector Word32 -> m a
+runWithVector m v = runRand m =<< MWC.initialize v
+{-# INLINE runWithVector #-}
+
+-- | Run monad using seed
+runWithSeed :: PrimMonad m => Seed -> Rand m a -> m a
+runWithSeed seed m = runRand m =<< MWC.restore seed
+{-# INLINE runWithSeed #-}
+
 -- | Run monad using system random
-runSystemRandom :: PrimMonad m => Rand m a -> IO a
-runSystemRandom (Rand rnd) = MWC.withSystemRandom rnd
+runWithSystemRandom :: PrimMonad m => Rand m a -> IO a
+runWithSystemRandom = MWC.withSystemRandom . runRand
+{-# INLINE runWithSystemRandom #-}
 
 instance PrimMonad m => Functor (Rand m) where
   fmap f (Rand rnd) = Rand $ \g -> (return . f) =<< (rnd g)
@@ -63,3 +96,10 @@ uniformR = Rand MWC.uniform
 normal :: (PrimMonad m) => Rand m Double
 normal = Rand MWC.normal
 {-# INLINE normal #-}
+
+
+----------------------------------------------------------------
+
+-- | Save current seed for future reuse
+save :: PrimMonad m => Rand m Seed
+save = Rand MWC.save
