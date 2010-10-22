@@ -102,8 +102,8 @@ uniform = Rand MWC.uniform
 {-# INLINE uniform #-}
 
 -- | Uniformly distributed values in range
-uniformR :: (PrimMonad m, Variate a) => Rand m a
-uniformR = Rand MWC.uniform
+uniformR :: (PrimMonad m, Variate a) => (a,a) -> Rand m a
+uniformR rng = Rand (MWC.uniformR rng)
 {-# INLINE uniformR #-}
 
 -- | Normally distributed variables with mean 0 and 1 statndard deviation
