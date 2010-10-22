@@ -1,5 +1,9 @@
 module System.Random.MWC.Monad ( -- * Random monad
                                  Rand
+                               , RandIO
+                               , asRandIO
+                               , RandST
+                               , asRandST
                                , Seed
                                , runRand
                                , runWithSeed
@@ -36,8 +40,18 @@ newtype Rand m a = Rand {
 -- | Type synonim for ST-based Rand monad
 type RandST s a = Rand (ST s) a
 
+-- | Fix type of monad to ST
+asRandST :: RandST a -> RandST a
+asRandST = id
+{-# INLINE asRandST #-}
+
 -- | Type synonim for IO-based Rand monad
 type RandIO a   = Rand IO a
+
+-- | Fix type of monad to IO
+asRandIO :: RandIO a -> RandIO a
+asRandIO = id
+{-# INLINE asRandIO #-}
 
 -- | Run monad using fixed seed
 runWithCreate :: PrimMonad m => Rand m a -> m a
