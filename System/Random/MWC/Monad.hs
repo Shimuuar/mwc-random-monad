@@ -42,7 +42,7 @@ newtype Rand m a = Rand {
 type RandST s a = Rand (ST s) a
 
 -- | Fix type of monad to ST
-asRandST :: RandST a -> RandST a
+asRandST :: RandST s a -> RandST s a
 asRandST = id
 {-# INLINE asRandST #-}
 
