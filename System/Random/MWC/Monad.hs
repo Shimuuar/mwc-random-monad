@@ -1,5 +1,6 @@
 module System.Random.MWC.Monad ( -- * Random monad
                                  Rand
+                               , liftR
                                , RandIO
                                , asRandIO
                                , RandST
@@ -37,6 +38,11 @@ newtype Rand m a = Rand {
   -- | Run random monad
   runRand :: Gen (PrimState m) -> m a
   }
+
+-- | Lift monadic action into 'Rand' monad
+liftR :: PrimMonad m => m a -> Rand m a
+liftR m = Rand $ const m
+{-# INLINE liftR #-}
 
 -- | Type synonim for ST-based Rand monad
 type RandST s a = Rand (ST s) a
