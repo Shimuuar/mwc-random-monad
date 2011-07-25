@@ -1,5 +1,5 @@
 Name:                mwc-random-monad
-Version:             0.1
+Version:             0.2
 Synopsis:            Monadic interface for mwc-random
 License:             BSD3
 License-file:        LICENSE
