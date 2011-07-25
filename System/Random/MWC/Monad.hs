@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module System.Random.MWC.Monad ( -- * Random monad
                                  Rand
                                , liftR
@@ -25,7 +26,9 @@ import Control.Monad           (ap)
 import Control.Monad.ST        (ST)
 import Control.Monad.Primitive (PrimMonad, PrimState)
 
-import Data.Vector.Unboxed (Vector)
+import qualified Data.Vector         as V
+import qualified Data.Vector.Unboxed as U
+import qualified Data.Vector.Generic as G
 import Data.Word           (Word32)
 
 import qualified System.Random.MWC as MWC
@@ -66,7 +69,7 @@ runWithCreate m = runRand m =<< MWC.create
 {-# INLINE runWithCreate #-}
 
 -- | By creating seed from vector of values
-runWithVector :: PrimMonad m => Rand m a -> Vector Word32 -> m a
+runWithVector :: (G.Vector v Word32, PrimMonad m) => Rand m a -> v Word32 -> m a
 runWithVector m v = runRand m =<< MWC.initialize v
 {-# INLINE runWithVector #-}
 
