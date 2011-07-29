@@ -136,19 +136,15 @@ normal m s = (+ m) . (* s) <$> standard
 
 ----------------------------------------------------------------
 
--- FIXME: bug #4101
-delta :: Double
-delta = 2**(-53)
-{-# INLINE delta #-}
-
 -- | Randomly select from list of equiprobable random sources. List must be non-empty
 equiprobable :: PrimMonad m => [Rand m a] -> Rand m a
 equiprobable [] = error "System.Random.MWC.Monad.equiprobable: list must be nonempty"
 equiprobable xs = worker (V.fromList xs)
   where
     worker v = do
-      p <- uniform 
-      v V.! (truncate $ (p - delta) * fromIntegral (V.length v))
+      -- uniform - 2^(-53) lies in the [0,1) range
+      p <- uniform
+      v V.! truncate ((p - 2^^(-53)) * fromIntegral (V.length v) :: Double)
       
 -- | Randomly select from list of weighted random sources. List must
 -- contain sources with positive weight. Elements with non-positive
@@ -161,16 +157,19 @@ choices xs
   where
     xs'  = filter ((>0) . fst) xs
     vect = V.fromList (map snd xs')
-    ps   = U.init . U.scanl' (+) 0 $ U.map (/ U.sum q) q where q = U.fromList (map fst xs')
+    ps   = U.init . U.scanl' (+) 0 $ U.map (/ U.sum q) q
+           where q = U.fromList (map fst xs')
     worker vect probs = do
       p <- uniform
       let i = binary probs p
       vect V.! (i - 1)
 
+-- Binary search /Copied from vector algorithms
 binary :: (Ord a, U.Unbox a) => U.Vector a -> a -> Int
 binary v x = binaryRange v x 0 (U.length v)
 {-# INLINE binary #-}
 
+-- Binary search in range
 binaryRange :: (Ord a, U.Unbox a) => U.Vector a -> a -> Int -> Int -> Int
 binaryRange v x = loop 
   where
