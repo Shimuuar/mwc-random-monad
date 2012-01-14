@@ -1,4 +1,16 @@
 {-# LANGUAGE FlexibleContexts #-}
+-- |
+-- Module    : System.Random.MWC.Monad
+-- Copyright : (c) 2010-2012 Aleksey Khudyakov
+-- License   : BSD3
+--
+-- Maintainer  : alexey.skladnoy@gmail.com
+-- Stability   : experimental
+-- Portability : portable
+--
+-- This module provide monadic interface for @mwc-random@
+-- package. It's just a thin wrapper and all work is done
+-- @mwc-random@.
 module System.Random.MWC.Monad ( 
     -- * Random monad
     Rand

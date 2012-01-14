@@ -1,3 +1,13 @@
+-- |
+-- Module    : System.Random.MWC.Monad
+-- Copyright : (c) 2010-2012 Aleksey Khudyakov
+-- License   : BSD3
+--
+-- Maintainer  : alexey.skladnoy@gmail.com
+-- Stability   : experimental
+-- Portability : portable
+--
+-- Monadic wrapper for various distributions generators.
 module System.Random.MWC.Distributions.Monad (
     normal
   , standard
