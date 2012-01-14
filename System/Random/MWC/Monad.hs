@@ -15,8 +15,6 @@ module System.Random.MWC.Monad ( -- * Random monad
                                , toRand
                                , uniform
                                , uniformR
-                               , standard
-                               , normal
                                  -- * Seed management
                                , save
                                ) where
@@ -118,18 +116,6 @@ uniformR :: (PrimMonad m, Variate a) => (a,a) -> Rand m a
 uniformR rng = Rand (MWC.uniformR rng)
 {-# INLINE uniformR #-}
 
--- | Normally distributed variables with mean 0 and 1 standard deviation
-standard :: PrimMonad m => Rand m Double
-standard = Rand MWC.normal
-{-# INLINE normal #-}
-
--- | Normally distributed variable
-normal :: PrimMonad m => 
-          Double                -- Mean
-       -> Double                -- Variance
-       -> Rand m Double
-normal m s = (+ m) . (* s) <$> standard
-{-# INLINE standard #-}
 
 ----------------------------------------------------------------
 
