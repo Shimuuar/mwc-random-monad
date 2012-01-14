@@ -1,5 +1,5 @@
 Name:                mwc-random-monad
-Version:             0.2
+Version:             0.3
 Synopsis:            Monadic interface for mwc-random
 License:             BSD3
 License-file:        LICENSE
@@ -14,10 +14,13 @@ Description:
 Library
   build-depends:     base >= 3 && < 5,
                      primitive,
-                     vector >= 0.6.0.2,
-                     mwc-random >= 0.8
+                     vector >= 0.7,
+                     mwc-random >= 0.11
   Exposed-modules:   System.Random.MWC.Monad
-  
+                     System.Random.MWC.Distributions.Monad
+  Ghc-options:       -O2 -Wall
+  Ghc-prof-options:  -auto-all
+
 source-repository head
   type:     mercurial
   location: http://bitbucket.org/Shimuuar/mwc-random-monad

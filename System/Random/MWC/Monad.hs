@@ -1,38 +1,40 @@
 {-# LANGUAGE FlexibleContexts #-}
-module System.Random.MWC.Monad ( -- * Random monad
-                                 Rand
-                               , liftR
-                               , RandIO
-                               , asRandIO
-                               , RandST
-                               , asRandST
-                               , Seed
-                               , runRand
-                               , runWithSeed
-                               , runWithVector
-                               , runWithSystemRandom
-                                 -- * Random numbers generation
-                               , toRand
-                               , uniform
-                               , uniformR
-                                 -- * Seed management
-                               , save
-                               ) where
+module System.Random.MWC.Monad ( 
+    -- * Random monad
+    Rand
+  , toRand
+  , liftR
+    -- ** Type syhnonims
+  , RandIO
+  , asRandIO
+  , RandST
+  , asRandST
+    -- ** Running monad
+  , runRand
+  , runWithCreate
+  , runWithSeed
+  , runWithVector
+  , runWithSystemRandom
+    -- * Random numbers generation
+  , uniform
+  , uniformR
+    -- * Seed management
+  , Seed
+  , toSeed
+  , fromSeed
+  , save
+  ) where
 
 import Control.Applicative
 import Control.Monad           (ap)
 import Control.Monad.ST        (ST)
 import Control.Monad.Primitive (PrimMonad, PrimState)
 
-import qualified Data.Vector         as V
-import qualified Data.Vector.Unboxed as U
+import Data.Word               (Word32)
 import qualified Data.Vector.Generic as G
-import Data.Ord
-import Data.Word           (Word32)
-import Debug.Trace
 
 import qualified System.Random.MWC as MWC
-import           System.Random.MWC   (Gen,Variate,Seed)
+import           System.Random.MWC   (Gen,Variate,Seed,toSeed,fromSeed)
 
 ----------------------------------------------------------------
 
