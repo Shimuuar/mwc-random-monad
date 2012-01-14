@@ -90,7 +90,7 @@ instance PrimMonad m => Functor (Rand m) where
   {-# INLINE fmap #-}
 
 instance PrimMonad m => Monad (Rand m) where
-  return x         = Rand (\_ -> return x)
+  return           = Rand . const . return
   (Rand rnd) >>= f = Rand $ \g -> (\x -> runRand (f x) g) =<< rnd g
   {-# INLINE return #-}
   {-# INLINE (>>=)  #-}
@@ -110,12 +110,12 @@ toRand = Rand
 
 -- | Uniformly distributed values
 uniform :: (PrimMonad m, Variate a) => Rand m a
-uniform = Rand MWC.uniform
+uniform = Rand $ \g -> MWC.uniform g
 {-# INLINE uniform #-}
 
 -- | Uniformly distributed values in range
 uniformR :: (PrimMonad m, Variate a) => (a,a) -> Rand m a
-uniformR rng = Rand (MWC.uniformR rng)
+uniformR rng = Rand $ \g -> MWC.uniformR rng g
 {-# INLINE uniformR #-}
 
 
