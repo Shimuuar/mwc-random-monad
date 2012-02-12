@@ -19,6 +19,7 @@ Library
                      mwc-random >= 0.11
   Exposed-modules:   System.Random.MWC.Monad
                      System.Random.MWC.Distributions.Monad
+                     System.Random.MWC.CondensedTable.Monad
   Ghc-options:       -O2 -Wall
   Ghc-prof-options:  -auto-all
 
