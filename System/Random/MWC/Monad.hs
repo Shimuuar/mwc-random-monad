@@ -15,7 +15,6 @@ module System.Random.MWC.Monad (
     -- * Random monad
     Rand
   , toRand
-  , liftR
     -- ** Type syhnonims
   , RandIO
   , asRandIO
@@ -38,9 +37,11 @@ module System.Random.MWC.Monad (
   ) where
 
 import Control.Applicative
-import Control.Monad           (ap)
-import Control.Monad.ST        (ST)
-import Control.Monad.Primitive (PrimMonad, PrimState)
+import Control.Monad             (ap)
+import Control.Monad.Trans.Class (MonadTrans(..))
+import Control.Monad.IO.Class    (MonadIO(..))
+import Control.Monad.ST          (ST)
+import Control.Monad.Primitive   (PrimMonad, PrimState)
 
 import Data.Word               (Word32)
 import qualified Data.Vector.Generic as G
@@ -56,10 +57,31 @@ newtype Rand m a = Rand {
   runRand :: Gen (PrimState m) -> m a
   }
 
--- | Lift monadic action into 'Rand' monad
-liftR :: PrimMonad m => m a -> Rand m a
-liftR m = Rand $ const m
-{-# INLINE liftR #-}
+instance (Monad m) => Functor (Rand m) where
+  fmap f (Rand rnd) = Rand $ \g -> (return . f) =<< (rnd g)
+  {-# INLINE fmap #-}
+
+instance (Monad m) => Monad (Rand m) where
+  return           = Rand . const . return
+  (Rand rnd) >>= f = Rand $ \g -> (\x -> runRand (f x) g) =<< rnd g
+  {-# INLINE return #-}
+  {-# INLINE (>>=)  #-}
+
+instance (Monad m) => Applicative (Rand m) where
+  pure  = return
+  (<*>) = ap
+  {-# INLINE pure  #-}
+  {-# INLINE (<*>) #-}
+
+instance MonadTrans Rand where
+  lift = Rand . const
+  {-# INLINE lift #-}
+
+instance MonadIO m => MonadIO (Rand m) where
+  liftIO = lift . liftIO
+  {-# INLINE liftIO #-}
+
+
 
 -- | Type synonim for ST-based Rand monad
 type RandST s a = Rand (ST s) a
@@ -76,6 +98,10 @@ type RandIO a   = Rand IO a
 asRandIO :: RandIO a -> RandIO a
 asRandIO = id
 {-# INLINE asRandIO #-}
+
+
+
+----------------------------------------------------------------
 
 -- | Run monad using fixed seed
 runWithCreate :: PrimMonad m => Rand m a -> m a
@@ -97,21 +123,7 @@ runWithSystemRandom :: PrimMonad m => Rand m a -> IO a
 runWithSystemRandom = MWC.withSystemRandom . runRand
 {-# INLINE runWithSystemRandom #-}
 
-instance PrimMonad m => Functor (Rand m) where
-  fmap f (Rand rnd) = Rand $ \g -> (return . f) =<< (rnd g)
-  {-# INLINE fmap #-}
 
-instance PrimMonad m => Monad (Rand m) where
-  return           = Rand . const . return
-  (Rand rnd) >>= f = Rand $ \g -> (\x -> runRand (f x) g) =<< rnd g
-  {-# INLINE return #-}
-  {-# INLINE (>>=)  #-}
-
-instance (PrimMonad m) => Applicative (Rand m) where
-  pure  = return
-  (<*>) = ap
-  {-# INLINE pure  #-}
-  {-# INLINE (<*>) #-}
 
 ----------------------------------------------------------------
 
@@ -129,6 +141,7 @@ uniform = Rand $ \g -> MWC.uniform g
 uniformR :: (PrimMonad m, Variate a) => (a,a) -> Rand m a
 uniformR rng = Rand $ \g -> MWC.uniformR rng g
 {-# INLINE uniformR #-}
+
 
 
 ----------------------------------------------------------------
