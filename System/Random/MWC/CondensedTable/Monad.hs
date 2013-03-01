@@ -23,12 +23,12 @@ module System.Random.MWC.CondensedTable.Monad (
   , MWC.tableBinomial
   ) where
 
-import Control.Monad.Primitive         (PrimMonad)
+import Control.Monad.Primitive.Class (MonadPrim)
 import qualified Data.Vector.Generic as G
 import System.Random.MWC.Monad
 import qualified System.Random.MWC.CondensedTable as MWC
 
 
-genFromTable :: (PrimMonad m, G.Vector v a) => MWC.CondensedTable v a -> Rand m a
+genFromTable :: (MonadPrim m, G.Vector v a) => MWC.CondensedTable v a -> Rand m a
 genFromTable tbl = toRand $ \g -> MWC.genFromTable tbl g
 {-# INLINE genFromTable #-}

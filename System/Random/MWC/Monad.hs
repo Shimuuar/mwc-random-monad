@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies     #-}
 -- |
 -- Module    : System.Random.MWC.Monad
 -- Copyright : (c) 2010-2012 Aleksey Khudyakov
@@ -42,6 +43,7 @@ import Control.Monad.Trans.Class (MonadTrans(..))
 import Control.Monad.IO.Class    (MonadIO(..))
 import Control.Monad.ST          (ST)
 import Control.Monad.Primitive   (PrimMonad, PrimState)
+import Control.Monad.Primitive.Class (MonadPrim(..))
 
 import Data.Word               (Word32)
 import qualified Data.Vector.Generic as G
@@ -54,7 +56,7 @@ import           System.Random.MWC   (Gen,Variate,Seed,toSeed,fromSeed)
 -- | Random monad for mwc-random package
 newtype Rand m a = Rand {
   -- | Run random monad
-  runRand :: Gen (PrimState m) -> m a
+  runRand :: Gen (PrimState (BasePrimMonad m)) -> m a
   }
 
 instance (Monad m) => Functor (Rand m) where
@@ -81,7 +83,10 @@ instance MonadIO m => MonadIO (Rand m) where
   liftIO = lift . liftIO
   {-# INLINE liftIO #-}
 
-
+instance MonadPrim m => MonadPrim (Rand m) where
+  type BasePrimMonad (Rand m) = BasePrimMonad m
+  liftPrim = lift . liftPrim
+  {-# INLINE liftPrim #-}
 
 -- | Type synonim for ST-based Rand monad
 type RandST s a = Rand (ST s) a
@@ -104,22 +109,22 @@ asRandIO = id
 ----------------------------------------------------------------
 
 -- | Run monad using fixed seed
-runWithCreate :: PrimMonad m => Rand m a -> m a
-runWithCreate m = runRand m =<< MWC.create
+runWithCreate :: MonadPrim m => Rand m a -> m a
+runWithCreate m = runRand m =<< liftPrim MWC.create
 {-# INLINE runWithCreate #-}
 
 -- | By creating seed from vector of values
-runWithVector :: (G.Vector v Word32, PrimMonad m) => Rand m a -> v Word32 -> m a
-runWithVector m v = runRand m =<< MWC.initialize v
+runWithVector :: (G.Vector v Word32, MonadPrim m) => Rand m a -> v Word32 -> m a
+runWithVector m v = runRand m =<< liftPrim (MWC.initialize v)
 {-# INLINE runWithVector #-}
 
 -- | Run monad using seed
-runWithSeed :: PrimMonad m => Seed -> Rand m a -> m a
-runWithSeed seed m = runRand m =<< MWC.restore seed
+runWithSeed :: MonadPrim m => Seed -> Rand m a -> m a
+runWithSeed seed m = runRand m =<< liftPrim (MWC.restore seed)
 {-# INLINE runWithSeed #-}
 
 -- | Run monad using system random
-runWithSystemRandom :: PrimMonad m => Rand m a -> IO a
+runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ m) => Rand m a -> IO a
 runWithSystemRandom = MWC.withSystemRandom . runRand
 {-# INLINE runWithSystemRandom #-}
 
@@ -128,18 +133,18 @@ runWithSystemRandom = MWC.withSystemRandom . runRand
 ----------------------------------------------------------------
 
 -- | Convert function to Rand monad
-toRand :: PrimMonad m => (Gen (PrimState m) -> m a) -> Rand m a
-toRand = Rand
+toRand :: MonadPrim m => (Gen (PrimState (BasePrimMonad m)) -> BasePrimMonad m a) -> Rand m a
+toRand generator = Rand $ \g -> liftPrim (generator g)
 {-# INLINE toRand #-}
 
 -- | Uniformly distributed values
-uniform :: (PrimMonad m, Variate a) => Rand m a
-uniform = Rand $ \g -> MWC.uniform g
+uniform :: (MonadPrim m, Variate a) => Rand m a
+uniform = toRand $ \g -> MWC.uniform g
 {-# INLINE uniform #-}
 
 -- | Uniformly distributed values in range
-uniformR :: (PrimMonad m, Variate a) => (a,a) -> Rand m a
-uniformR rng = Rand $ \g -> MWC.uniformR rng g
+uniformR :: (MonadPrim m, Variate a) => (a,a) -> Rand m a
+uniformR rng = toRand $ \g -> MWC.uniformR rng g
 {-# INLINE uniformR #-}
 
 
@@ -147,5 +152,5 @@ uniformR rng = Rand $ \g -> MWC.uniformR rng g
 ----------------------------------------------------------------
 
 -- | Save current seed for future reuse
-save :: PrimMonad m => Rand m Seed
-save = Rand MWC.save
+save :: MonadPrim m => Rand m Seed
+save = Rand $ liftPrim . MWC.save
