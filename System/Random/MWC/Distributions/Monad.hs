@@ -12,8 +12,11 @@ module System.Random.MWC.Distributions.Monad (
     normal
   , standard
   , exponential
+  , truncatedExp
   , gamma
   , chiSquare
+  , geometric0
+  , geometric1
   ) where
 
 import Control.Monad.Primitive.Class (MonadPrim(..))
@@ -43,6 +46,15 @@ exponential :: MonadPrim m =>
 exponential x = toRand $ \g -> MWC.exponential x g
 {-# INLINE exponential #-}
 
+-- | Generate truncated exponentially distributed random variate.
+truncatedExp :: MonadPrim m
+             => Double          -- ^ Scale parameter
+             -> (Double,Double) -- ^ Range to which distribution is
+                                --   truncated. Values may be negative.
+             -> Rand m Double
+truncatedExp s rng = toRand $ \g -> MWC.truncatedExp s rng g
+{-# INLINE truncatedExp #-}
+
 -- | Random variate generator for gamma distribution.
 gamma :: MonadPrim m
       => Double                 -- ^ Shape parameter
@@ -57,3 +69,19 @@ chiSquare :: MonadPrim m
           -> Rand m Double
 chiSquare n = toRand $ \g -> MWC.chiSquare n g
 {-# INLINE chiSquare #-}
+
+-- | Random variate generator for the geometric distribution,
+-- computing the number of failures before success. Supports [0..].
+geometric0 :: MonadPrim m
+           => Double        -- ^ /p/ success probability lies in (0,1]
+           -> Rand m Int
+geometric0 p = toRand $ \g -> MWC.geometric0 p g
+{-# INLINE geometric0 #-}
+
+-- | Random variate generator for geometric distribution for number of
+-- trials. Supports [1..] (i.e. just 'geometric0' shifted by 1).
+geometric1 :: MonadPrim m
+           => Double -- ^ /p/ success probability lies in (0,1]
+           -> Rand m Int
+geometric1 p = toRand $ \g -> MWC.geometric1 p g
+{-# INLINE geometric1 #-}
