@@ -71,7 +71,8 @@ chiSquare n = toRand $ \g -> MWC.chiSquare n g
 {-# INLINE chiSquare #-}
 
 -- | Random variate generator for the geometric distribution,
--- computing the number of failures before success. Supports [0..].
+-- computing the number of failures before success. Distribution's
+-- support is [0..].
 geometric0 :: MonadPrim m
            => Double        -- ^ /p/ success probability lies in (0,1]
            -> Rand m Int
@@ -79,7 +80,7 @@ geometric0 p = toRand $ \g -> MWC.geometric0 p g
 {-# INLINE geometric0 #-}
 
 -- | Random variate generator for geometric distribution for number of
--- trials. Supports [1..] (i.e. just 'geometric0' shifted by 1).
+-- trials. Distribution's support is [1..] (i.e. just 'geometric0' shifted by 1).
 geometric1 :: MonadPrim m
            => Double -- ^ /p/ success probability lies in (0,1]
            -> Rand m Int
