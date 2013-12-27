@@ -1,4 +1,0 @@
-
-This package provides thin monadic wrapper for
-[mwc-random](http://hackage.haskell.org/package/mwc-random) package.
-
