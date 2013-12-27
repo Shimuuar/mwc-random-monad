@@ -36,8 +36,6 @@ install:
 script:
  - cabal-1.18 configure -v2  # -v2 provides useful information for debugging
  - cabal-1.18 build
- - cabal-1.18 test
- - cabal-1.18 check
 # tests that a source-distribution can be generated
  - cabal-1.18 sdist
 # The following scriptlet checks that the resulting source distribution can be built & installed
