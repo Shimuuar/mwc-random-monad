@@ -2,7 +2,8 @@
 # test only against the last release in a major GHC version. Feel free to omit
 # lines listings versions you don't need/want testing for.
 env:
- - GHCVER=7.0.1
+# 7.0.1 triggers some compiler bug. Too bad
+# - GHCVER=7.0.1
  - GHCVER=7.0.2
  - GHCVER=7.0.3
  - GHCVER=7.0.4

@@ -24,7 +24,7 @@ Library
     System.Random.MWC.Monad
     System.Random.MWC.Distributions.Monad
     System.Random.MWC.CondensedTable.Monad
-  if impl(GHC >= 7.2.2)
+  if impl(GHC > 7.2.2)
     Ghc-options:     -fsimpl-tick-factor=500
   Ghc-options:       -O2 -Wall
   Ghc-prof-options:  -auto-all
