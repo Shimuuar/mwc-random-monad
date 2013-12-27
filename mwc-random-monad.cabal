@@ -1,5 +1,5 @@
 Name:                mwc-random-monad
-Version:             0.7
+Version:             0.7.0.1
 License:             BSD3
 License-file:        LICENSE
 Author:              Alexey Khudyakov <alexey.skladnoy@gmail.com>
@@ -11,6 +11,8 @@ Cabal-version:       >=1.6
 Synopsis:            Monadic interface for mwc-random
 Description:         
   Simple monadic interface for mwc-random.
+extra-source-files:
+  ChangeLog
 
 Library
   build-depends:
