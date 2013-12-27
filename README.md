@@ -1,4 +1,4 @@
-The `mwc-random-monad` package [![Build Status](https://travis-ci.org/Shimuuar/monad-primitive.png?branch=master)](https://travis-ci.org/Shimuuar/monad-primitive)
+The `mwc-random-monad` package [![Build Status](https://travis-ci.org/Shimuuar/mwc-random-monad.png?branch=master)](https://travis-ci.org/Shimuuar/mwc-random-monad)
 ====================
 
 This package provides thin monadic wrapper for
