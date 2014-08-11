@@ -1,5 +1,5 @@
 Name:                mwc-random-monad
-Version:             0.7.0.1
+Version:             0.7.1.0
 License:             BSD3
 License-file:        LICENSE
 Author:              Alexey Khudyakov <alexey.skladnoy@gmail.com>
@@ -21,7 +21,7 @@ Library
     primitive,
     monad-primitive,
     vector     >= 0.7,
-    mwc-random >= 0.13
+    mwc-random >= 0.13.2.0
   Exposed-modules:
     System.Random.MWC.Monad
     System.Random.MWC.Distributions.Monad

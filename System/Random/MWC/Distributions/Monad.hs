@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 -- |
 -- Module    : System.Random.MWC.Monad
 -- Copyright : (c) 2010-2012 Aleksey Khudyakov
@@ -9,18 +10,31 @@
 --
 -- Monadic wrapper for various distributions generators.
 module System.Random.MWC.Distributions.Monad (
+    -- * Variates: non-uniformly distributed values
+    -- ** Continuous distributions
     normal
   , standard
   , exponential
   , truncatedExp
   , gamma
   , chiSquare
+  , beta
+      -- ** Discrete distribution
+  , categorical
   , geometric0
   , geometric1
+  , bernoulli
+    -- ** Multivariate
+  , dirichlet
+    -- * Permutations
+  , uniformPermutation
+  , uniformShuffle
   ) where
 
 import Control.Monad.Primitive.Class (MonadPrim(..))
 
+import Data.Vector.Generic (Vector)
+import Data.Traversable    (Traversable)
 import qualified System.Random.MWC.Distributions as MWC
 import System.Random.MWC.Monad
 
@@ -86,3 +100,56 @@ geometric1 :: MonadPrim m
            -> Rand m Int
 geometric1 p = toRand $ \g -> MWC.geometric1 p g
 {-# INLINE geometric1 #-}
+
+-- | Random variate generator for Beta distribution
+beta :: MonadPrim m
+     => Double            -- ^ alpha (>0)
+     -> Double            -- ^ beta  (>0)
+     -> Rand m Double
+{-# INLINE beta #-}
+beta a b = toRand $ \g -> MWC.beta a b g
+
+-- | Random variate generator for Dirichlet distribution
+dirichlet :: (MonadPrim m, Traversable t)
+          => t Double          -- ^ container of parameters
+          -> Rand m (t Double)
+{-# INLINE dirichlet #-}
+dirichlet t = toRand $ \g -> MWC.dirichlet t g
+
+-- | Random variate generator for Bernoulli distribution
+bernoulli :: (MonadPrim m)
+          => Double            -- ^ Probability of success (returning True)
+          -> Rand m Bool
+{-# INLINE bernoulli #-}
+bernoulli p = toRand $ \g -> MWC.bernoulli p g
+
+-- | Random variate generator for categorical distribution.
+--
+--   Note that if you need to generate a lot of variates functions
+--   "System.Random.MWC.CondensedTable" will offer better
+--   performance.  If only few is needed this function will faster
+--   since it avoids costs of setting up table.
+categorical :: (MonadPrim m, Vector v Double)
+            => v Double          -- ^ List of weights [>0]
+            -> Rand m Int
+{-# INLINE categorical #-}
+categorical v = toRand $ \g -> MWC.categorical v g
+
+
+-- | Random variate generator for uniformly distributed permutations.
+--   It returns random permutation of vector /[0 .. n-1]/.
+--
+--   This is the Fisher-Yates shuffle
+uniformPermutation :: (MonadPrim m, Vector v Int)
+                   => Int
+                   -> Rand m (v Int)
+{-# INLINE uniformPermutation #-}
+uniformPermutation n = toRand $ \g -> MWC.uniformPermutation n g
+
+-- | Random variate generator for a uniformly distributed shuffle of a
+--   vector.
+uniformShuffle :: (MonadPrim m, Vector v a, Vector v Int)
+               => v a
+               -> Rand m (v a)
+{-# INLINE uniformShuffle #-}
+uniformShuffle xs = toRand $ \g -> MWC.uniformShuffle xs g

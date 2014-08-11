@@ -1,4 +1,8 @@
+Changes in 0.7.1.0
 
+  * New functions from mwc-random-0.13.2.0
+
+  
 Changes in 0.7.0.1
 
   * Unbreak build for GHC <= 7.2.2
