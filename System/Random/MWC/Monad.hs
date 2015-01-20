@@ -42,7 +42,7 @@ import Control.Monad             (ap)
 import Control.Monad.Trans.Class (MonadTrans(..))
 import Control.Monad.IO.Class    (MonadIO(..))
 import Control.Monad.ST          (ST)
-import Control.Monad.Primitive   (PrimMonad, PrimState)
+import Control.Monad.Primitive   (PrimState)
 import Control.Monad.Primitive.Class (MonadPrim(..))
 
 import Data.Word               (Word32)
