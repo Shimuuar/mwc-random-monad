@@ -124,8 +124,9 @@ runWithSeed seed m = runRand m =<< liftPrim (MWC.restore seed)
 {-# INLINE runWithSeed #-}
 
 -- | Run monad using system random
-runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ m) => Rand m a -> IO a
-runWithSystemRandom = MWC.withSystemRandom . runRand
+runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ IO) => Rand m a -> m a
+runWithSystemRandom rnd
+  = runRand rnd =<< liftPrim MWC.createSystemRandom
 {-# INLINE runWithSystemRandom #-}
 
 
