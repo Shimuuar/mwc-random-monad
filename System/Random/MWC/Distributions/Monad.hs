@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 -- |
 -- Module    : System.Random.MWC.Monad
@@ -29,12 +30,15 @@ module System.Random.MWC.Distributions.Monad (
     -- * Permutations
   , uniformPermutation
   , uniformShuffle
+  , uniformShuffleM
   ) where
 
+import Control.Monad.Primitive       (PrimState)
 import Control.Monad.Primitive.Class (MonadPrim(..))
 
-import Data.Vector.Generic (Vector)
-import Data.Traversable    (Traversable)
+import Data.Vector.Generic         (Vector)
+import Data.Vector.Generic.Mutable (MVector)
+import Data.Traversable            (Traversable)
 import qualified System.Random.MWC.Distributions as MWC
 import System.Random.MWC.Monad
 
@@ -148,8 +152,16 @@ uniformPermutation n = toRand $ \g -> MWC.uniformPermutation n g
 
 -- | Random variate generator for a uniformly distributed shuffle of a
 --   vector.
-uniformShuffle :: (MonadPrim m, Vector v a, Vector v Int)
+uniformShuffle :: (MonadPrim m, Vector v a)
                => v a
                -> Rand m (v a)
 {-# INLINE uniformShuffle #-}
 uniformShuffle xs = toRand $ \g -> MWC.uniformShuffle xs g
+
+-- | In-place uniformly distributed shuffle (all shuffles are
+--   equiprobable) of a vector.
+uniformShuffleM :: (MonadPrim m, MVector v a, PrimState m ~ PrimState (BasePrimMonad m))
+                => v (PrimState m) a
+                -> Rand m ()
+uniformShuffleM xs = toRand $ \g -> MWC.uniformShuffleM xs g
+{-# INLINE uniformShuffleM #-}
