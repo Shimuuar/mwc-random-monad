@@ -27,6 +27,7 @@ module System.Random.MWC.Monad (
   , runWithSeed
   , runWithVector
   , runWithSystemRandom
+  , runWithSystemRandomT
     -- * Random numbers generation
   , uniform
   , uniformR
@@ -42,7 +43,7 @@ import Control.Monad             (ap)
 import Control.Monad.Trans.Class (MonadTrans(..))
 import Control.Monad.IO.Class    (MonadIO(..))
 import Control.Monad.ST          (ST)
-import Control.Monad.Primitive   (PrimState,PrimMonad)
+import Control.Monad.Primitive   (PrimState)
 import Control.Monad.Primitive.Class (MonadPrim(..))
 
 import Data.Word               (Word32)
@@ -123,12 +124,22 @@ runWithSeed :: MonadPrim m => Seed -> Rand m a -> m a
 runWithSeed seed m = runRand m =<< liftPrim (MWC.restore seed)
 {-# INLINE runWithSeed #-}
 
--- | Run monad using system random
+-- | Run monad using seed obtained from system's fast source of
+--   pseudo-random numbers ("\/dev\/urandom" on Unix-like
+--   systems). @m@ must be either IO or ST.
 runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ m) => Rand m a -> IO a
 runWithSystemRandom rnd = do
   MWC.withSystemRandom $ \g -> runRand rnd g
 {-# INLINE runWithSystemRandom #-}
 
+-- | Run monad using seed obtained from system's fast source of
+--   pseudo-random numbers ("\/dev\/urandom" on Unix-like
+--   systems). Unlike 'runWithSystemRandom' it could be used with
+--   monad stacks.
+runWithSystemRandomT :: (MonadPrim m, BasePrimMonad  m ~ IO) => Rand m a -> m a
+runWithSystemRandomT rnd
+  = runRand rnd =<< liftPrim MWC.createSystemRandom
+{-# INLINE runWithSystemRandomT #-}
 
 
 ----------------------------------------------------------------
