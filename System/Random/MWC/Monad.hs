@@ -42,7 +42,7 @@ import Control.Monad             (ap)
 import Control.Monad.Trans.Class (MonadTrans(..))
 import Control.Monad.IO.Class    (MonadIO(..))
 import Control.Monad.ST          (ST)
-import Control.Monad.Primitive   (PrimState)
+import Control.Monad.Primitive   (PrimState,PrimMonad)
 import Control.Monad.Primitive.Class (MonadPrim(..))
 
 import Data.Word               (Word32)
@@ -124,9 +124,9 @@ runWithSeed seed m = runRand m =<< liftPrim (MWC.restore seed)
 {-# INLINE runWithSeed #-}
 
 -- | Run monad using system random
-runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ IO) => Rand m a -> m a
-runWithSystemRandom rnd
-  = runRand rnd =<< liftPrim MWC.createSystemRandom
+runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ m) => Rand m a -> IO a
+runWithSystemRandom rnd = do
+  MWC.withSystemRandom $ \g -> runRand rnd g
 {-# INLINE runWithSystemRandom #-}
 
 
