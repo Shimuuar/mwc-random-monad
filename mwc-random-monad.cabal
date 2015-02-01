@@ -1,10 +1,10 @@
 Name:                mwc-random-monad
-Version:             0.7.2.0
+Version:             0.7.3.0
 License:             BSD3
 License-file:        LICENSE
 Author:              Alexey Khudyakov <alexey.skladnoy@gmail.com>
 Maintainer:          Alexey Khudyakov <alexey.skladnoy@gmail.com>
-bug-reports:         https://bitbucket.org/Shimuuar/mwc-random-monad/issues
+bug-reports:         https://github.com/Shimuuar/mwc-random-monad/issues
 Category:            Math, Statistics
 Build-type:          Simple
 Cabal-version:       >=1.6
@@ -37,5 +37,5 @@ source-repository head
 
 source-repository head
   type:     git
-  location: git://github.com/Shimuuar/mwc-random
+  location: git://github.com/Shimuuar/mwc-random-monad
 
