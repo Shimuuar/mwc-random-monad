@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP              #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies     #-}
 -- |
@@ -44,6 +45,9 @@ import Control.Monad.Trans.Class (MonadTrans(..))
 import Control.Monad.IO.Class    (MonadIO(..))
 import Control.Monad.ST          (ST)
 import Control.Monad.Primitive   (PrimState)
+#if MIN_VERSION_primitive(0,6,0)
+import Control.Monad.Primitive   (PrimBase)
+#endif
 import Control.Monad.Primitive.Class (MonadPrim(..))
 
 import Data.Word               (Word32)
@@ -127,7 +131,15 @@ runWithSeed seed m = runRand m =<< liftPrim (MWC.restore seed)
 -- | Run monad using seed obtained from system's fast source of
 --   pseudo-random numbers ("\/dev\/urandom" on Unix-like
 --   systems). @m@ must be either IO or ST.
-runWithSystemRandom :: (MonadPrim m, BasePrimMonad m ~ m) => Rand m a -> IO a
+runWithSystemRandom
+  :: (
+#if MIN_VERSION_primitive(0,6,0)
+       PrimBase m
+#else
+       MonadPrim m
+#endif
+     , BasePrimMonad m ~ m
+     ) => Rand m a -> IO a
 runWithSystemRandom rnd = do
   MWC.withSystemRandom $ \g -> runRand rnd g
 {-# INLINE runWithSystemRandom #-}
