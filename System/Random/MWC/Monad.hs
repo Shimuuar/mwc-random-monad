@@ -93,7 +93,7 @@ instance MonadPrim m => MonadPrim (Rand m) where
   liftPrim = lift . liftPrim
   {-# INLINE liftPrim #-}
 
--- | Type synonim for ST-based Rand monad
+-- | Type synonym for ST-based Rand monad
 type RandST s a = Rand (ST s) a
 
 -- | Fix type of monad to ST
@@ -101,7 +101,7 @@ asRandST :: RandST s a -> RandST s a
 asRandST = id
 {-# INLINE asRandST #-}
 
--- | Type synonim for IO-based Rand monad
+-- | Type synonym for IO-based Rand monad
 type RandIO a   = Rand IO a
 
 -- | Fix type of monad to IO
